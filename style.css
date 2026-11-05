@@ -1,0 +1,131 @@
+:root{
+    --bg:#f7f4f1;
+    --card:#ffffff;
+    --text:#3a3a44;
+    --muted:#8c8c9b;
+    --accent:#b8a9c9;
+    --soft-shadow: 0 8px 30px rgba(184, 169, 201, 0.12);
+    --radius:22px;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body{
+    min-height:100vh;
+    background:var(--bg);
+    padding:40px 18px;
+}
+.wrap{
+    max-width:540px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+.card{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--soft-shadow);
+    padding:28px;
+}
+.sub-title{
+    color:var(--muted);
+    font-size:14px;
+    letter-spacing: 0.12em;
+    margin-bottom:16px;
+}
+h1{
+    font-weight:500;
+    color:var(--text);
+    font-size:28px;
+    margin-bottom:24px;
+}
+.status-box,.time-box{
+    margin-bottom:18px;
+}
+.label{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:4px;
+}
+.value{
+    font-size:18px;
+    color:var(--text);
+    font-weight:500;
+}
+.time-num{
+    font-size:32px;
+    letter-spacing: 2px;
+    color:#6b5b84;
+}
+.btn-group{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+button{
+    flex:1;
+    padding:14px 0;
+    border:none;
+    border-radius:16px;
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    transition: all 0.25s ease;
+}
+#startBtn{
+    background:#b8a9c9;
+    color:white;
+}
+#startBtn:hover{
+    background:#a494b8;
+}
+#reportBtn{
+    background:#f7f4f1;
+    color:var(--text);
+}
+.chart-title{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:16px;
+    letter-spacing:0.08em;
+}
+.chart-card{
+    padding:24px;
+}
+
+/* 时段区域 */
+.time-set-row{
+    display:flex;
+    gap:16px;
+    margin-bottom:18px;
+}
+.time-item{
+    flex:1;
+}
+.time-item label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:6px;
+}
+.time-item input[type="time"]{
+    width:100%;
+    border: none;
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:15px;
+    background:#f7f4f1;
+    color:var(--text);
+    box-shadow: 0 2px 6px rgba(184,169,201,0.08);
+    outline: none;
+}
+.small-btn{
+    width:100%;
+    padding:12px;
+    background:#d8cde4;
+    color:#444;
+}

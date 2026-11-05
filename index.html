@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight Screen Log · 深夜屏幕记录</title>
+    <!-- 加载本地css -->
+    <link rel="stylesheet" href="./style.css">
+    <!-- 加载Chart图表库CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card setting-card">
+            <p class="sub-title">⚙️ 时段设置</p>
+            <div class="time-set-row">
+                <div class="time-item">
+                    <label>深夜开始</label>
+                    <input type="time" id="nightStartInput" value="23:00">
+                </div>
+                <div class="time-item">
+                    <label>深夜结束</label>
+                    <input type="time" id="nightEndInput" value="06:00">
+                </div>
+            </div>
+            <button id="saveTimeBtn" class="small-btn">保存时段</button>
+        </div>
+
+        <div class="card main-card">
+            <p class="sub-title">🌙 Midnight Screen Log</p>
+            <h1>深夜使用记录</h1>
+            <div class="status-box">
+                <p class="label">当前状态</p>
+                <p class="value" id="status">等待记录</p>
+            </div>
+            <div class="time-box">
+                <p class="label">今日深夜时长</p>
+                <p class="time-num" id="todayTime">00:00</p>
+            </div>
+            <div class="btn-group">
+                <button id="startBtn">开启监测</button>
+                <button id="reportBtn">复盘报告</button>
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <p class="chart-title">趋势曲线</p>
+            <canvas id="chartCanvas"></canvas>
+        </div>
+    </div>
+    <!-- 加载本地js脚本 -->
+    <script src="./script.js"></script>
+</body>
+</html>
