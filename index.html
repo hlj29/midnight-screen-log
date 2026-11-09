@@ -1,16 +1,21 @@
+  
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Midnight Screen Log · 深夜屏幕记录</title>
-    <!-- 加载本地css -->
     <link rel="stylesheet" href="./style.css">
-    <!-- 加载Chart图表库CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="top-tools">
+        <button class="theme-btn" id="themeBtn">🌙 深色模式</button>
+    </div>
+
     <div class="wrap">
+
+        <!-- ① 时段设置 -->
         <div class="card setting-card">
             <p class="sub-title">⚙️ 时段设置</p>
             <div class="time-set-row">
@@ -24,31 +29,217 @@
                 </div>
             </div>
             <button id="saveTimeBtn" class="small-btn">保存时段</button>
+            <p class="hint" id="timeHint"></p>
         </div>
 
+        <!-- ② 主状态卡 -->
         <div class="card main-card">
             <p class="sub-title">🌙 Midnight Screen Log</p>
             <h1>深夜使用记录</h1>
-            <div class="status-box">
-                <p class="label">当前状态</p>
-                <p class="value" id="status">等待记录</p>
+
+            <div class="status-line">
+                <span class="dot" id="statusDot"></span>
+                <span id="status">等待记录</span>
             </div>
+
             <div class="time-box">
-                <p class="label">今日深夜时长</p>
+                <p class="label">本场 / 今日深夜时长（页面停留法）</p>
                 <p class="time-num" id="todayTime">00:00</p>
             </div>
+
             <div class="btn-group">
                 <button id="startBtn">开启监测</button>
-                <button id="reportBtn">复盘报告</button>
+                <button id="reportBtn">生成复盘</button>
             </div>
         </div>
 
-        <div class="card chart-card">
-            <p class="chart-title">趋势曲线</p>
-            <canvas id="chartCanvas"></canvas>
+        <!-- 新增：熬夜目标设置 -->
+        <div class="card" id="goalCard">
+            <p class="sub-title">🎯 熬夜目标管理</p>
+            <div class="goal-box">
+                <div class="goal-input-row">
+                    <div style="flex:1">
+                        <p class="label">每日深夜使用时长上限（分钟）</p>
+                        <input type="number" id="goalInput"
+                               min="1" max="1440" value="120">
+                    </div>
+                </div>
+                <button class="small-btn" id="saveGoalBtn">保存目标</button>
+                <div>
+                    <p class="label">今日目标完成情况</p>
+                    <div class="goal-progress">
+                        <div class="goal-progress-fill" id="goalProgressFill"></div>
+                    </div>
+                    <p class="goal-result" id="goalResult">今日目标：2小时以内</p>
+                </div>
+            </div>
         </div>
+
+        <!-- ③ 眼动监测（摄像头） -->
+        <div class="card eye-card">
+            <p class="sub-title">👁 眼动监测 · 摄像头判定</p>
+
+            <div class="eye-top">
+                <div class="eye-video-wrap">
+                    <video id="eyeVideo" playsinline muted autoplay></video>
+                    <span class="eye-video-tag" id="eyeVideoTag">摄像头未开启</span>
+                </div>
+
+                <div class="eye-status-box">
+                    <div class="status-line">
+                        <span class="dot" id="eyeStatusDot"></span>
+                        <span id="eyeStatus">未开启眼动监测</span>
+                    </div>
+                    <div class="eye-time">
+                        <p class="label">今日「注视屏幕」时长</p>
+                        <p class="time-num small-num" id="eyeToday">00:00</p>
+                    </div>
+                    <div class="meter" title="注视评分：越高表示视线越正对屏幕">
+                        <div class="meter-fill" id="eyeMeterFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eye-metrics">
+                <div class="em"><span class="em-label">人脸</span><span class="em-val" id="eyeFace">--</span></div>
+                <div class="em"><span class="em-label">睁眼度</span><span class="em-val" id="eyeOpen">--</span></div>
+                <div class="em"><span class="em-label">视线偏移</span><span class="em-val" id="eyeGaze">--</span></div>
+            </div>
+
+            <div class="stat-grid eye-stat-grid">
+                <div class="stat"><p class="stat-num" id="eyeSessions">0</p><p class="stat-label">使用段数</p></div>
+                <div class="stat"><p class="stat-num" id="eyeAway">0m</p><p class="stat-label">走神时长</p></div>
+                <div class="stat"><p class="stat-num" id="eyeNoFace">0m</p><p class="stat-label">离场时长</p></div>
+                <div class="stat"><p class="stat-num" id="eyeFps">--</p><p class="stat-label">识别帧率</p></div>
+            </div>
+
+            <div class="eye-opts">
+                <label class="opt-line">
+                    <span>判定灵敏度</span>
+                    <select id="eyeSens">
+                        <option value="loose">宽松（轻微偏头也算）</option>
+                        <option value="mid" selected>标准</option>
+                        <option value="strict">严格（必须正视屏幕）</option>
+                    </select>
+                </label>
+                <label class="opt-line check-line">
+                    <input type="checkbox" id="eyeAllDay">
+                    <span>全天累计（不限深夜时段）</span>
+                </label>
+            </div>
+
+            <button id="eyeToggleBtn" class="eye-btn">开启眼动监测</button>
+            <p class="hint" id="eyeHint">
+                摄像头画面只在本机内存中处理，不上传；由 MediaPipe 面部关键点模型判断「是否正看着屏幕」。
+            </p>
+        </div>
+
+        <!-- 新增：历史记录日历 -->
+        <div class="card" id="calendarCard">
+            <p class="sub-title">📅 每日熬夜记录日历</p>
+
+            <div class="calendar-header">
+                <div class="calendar-month" id="calendarMonth"></div>
+                <div class="calendar-nav">
+                    <button id="prevMonth">‹</button>
+                    <button id="nextMonth">›</button>
+                </div>
+            </div>
+
+            <div class="calendar-weekdays">
+                <span>日</span><span>一</span><span>二</span>
+                <span>三</span><span>四</span><span>五</span><span>六</span>
+            </div>
+
+            <div class="calendar-days" id="calendarDays"></div>
+
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#c9c9d2"></span>无记录
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#7fb89a"></span>达标
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#e0a4a0"></span>超标
+                </div>
+            </div>
+
+            <div class="calendar-detail" id="calendarDetail">
+                <h3 id="detailDate">请选择日期查看记录</h3>
+                <div id="calendarDetailBody">
+                    <p class="hint">点击上方日历中的日期，即可查看当天数据。</p>
+                </div>
+                <div class="calendar-actions">
+                    <button class="calendar-clear-day" id="clearDayBtn">清空单日记录</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ④ 客观指标 -->
+        <div class="card">
+            <p class="sub-title">📊 客观数据</p>
+            <div class="stat-grid">
+                <div class="stat"><p class="stat-num" id="statDays">0</p><p class="stat-label">记录天数</p></div>
+                <div class="stat"><p class="stat-num" id="statTotal">0h</p><p class="stat-label">累计时长</p></div>
+                <div class="stat"><p class="stat-num" id="statAvg">0m</p><p class="stat-label">日均</p></div>
+                <div class="stat"><p class="stat-num" id="statPeakTime">--</p><p class="stat-label">最常时段</p></div>
+            </div>
+        </div>
+
+        <!-- ⑤ 主观自评 -->
+        <div class="card">
+            <p class="sub-title">🪞 主观自评（今晚感受）</p>
+            <div class="eval-row">
+                <span class="eval-name">熬夜疲劳感</span>
+                <div class="seg" id="evalFatigue" data-key="fatigue"></div>
+            </div>
+            <div class="eval-row">
+                <span class="eval-name">自我控制满意度</span>
+                <div class="seg" id="evalControl" data-key="control"></div>
+            </div>
+            <div class="eval-row">
+                <span class="eval-name">使用意愿变化</span>
+                <div class="seg" id="evalWill" data-key="will"></div>
+            </div>
+            <button id="saveEvalBtn" class="small-btn">保存今晚自评</button>
+            <p class="hint" id="evalHint"></p>
+        </div>
+
+        <!-- ⑥ 趋势曲线 -->
+        <div class="card chart-card">
+            <p class="chart-title">📈 客观趋势（每日时长：页面停留 / 摄像头判定）</p>
+            <canvas id="chartCanvas"></canvas>
+            <p class="hint">实线＝页面停留法计时；虚线＝摄像头眼动判定计时。两条线差距越大，说明「网页开着但人已经没在看」越多。</p>
+        </div>
+
+        <!-- ⑦ 对照分析 -->
+        <div class="card chart-card">
+            <p class="chart-title">⚖️ 客观时长 × 主观疲劳感 对照</p>
+            <canvas id="compareCanvas"></canvas>
+        </div>
+
+        <!-- ⑧ 复盘报告 -->
+        <div class="card" id="reportCard" hidden>
+            <p class="sub-title">📝 一次性复盘报告</p>
+            <div id="reportBody" class="report-body"></div>
+        </div>
+
+        <!-- ⑨ 数据管理 -->
+        <div class="card">
+            <p class="sub-title">🗂 数据管理</p>
+            <div class="btn-group small-group">
+                <button id="exportBtn" class="ghost-btn">导出数据(JSON)</button>
+                <button id="clearBtn" class="danger-btn">清空全部数据</button>
+            </div>
+            <p class="hint">数据仅保存在本机浏览器（LocalStorage），不上传任何服务器。</p>
+        </div>
+
+        <p class="footer">Midnight Screen Log · 纯前端 · 免安装 · 隐私本地保存</p>
     </div>
-    <!-- 加载本地js脚本 -->
+
+    <div id="tipText" style="position:fixed;bottom:20px;left:20px;color:#fff;background:#444;padding:8px;border-radius:6px;"></div>
+
     <script src="./script.js"></script>
 </body>
 </html>
